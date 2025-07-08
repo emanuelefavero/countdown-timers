@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Countdown Timers</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 2rem;
+        background: #f0f0f0;
+        text-align: center;
+      }
+      input[type='date'],
+      input[type='text'] {
+        padding: 0.5rem;
+        font-size: 1rem;
+        margin: 0.3rem;
+      }
+      button {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        margin: 0.3rem;
+        cursor: pointer;
+      }
+      .countdown-list {
+        margin-top: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+      .countdown-item {
+        background: #fff;
+        padding: 1rem;
+        border-radius: 5px;
+        width: 320px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      }
+      .countdown-text {
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Countdown Timers</h1>
+    <div>
+      <input type="date" id="dateInput" />
+      <input type="text" id="labelInput" placeholder="Event name" />
+      <button id="addButton">+ Add Countdown</button>
+    </div>
+    <div class="countdown-list" id="countdownList"></div>
+
+    <script>
+      const dateInput = document.getElementById('dateInput')
+      const labelInput = document.getElementById('labelInput')
+      const addButton = document.getElementById('addButton')
+      const countdownList = document.getElementById('countdownList')
+
+      let countdowns = []
+
+      function saveCountdowns() {
+        localStorage.setItem('countdownList', JSON.stringify(countdowns))
+      }
+
+      function loadCountdowns() {
+        const saved = localStorage.getItem('countdownList')
+        if (saved) {
+          countdowns = JSON.parse(saved)
+        }
+      }
+
+      function createCountdownElement(countdown, index) {
+        const div = document.createElement('div')
+        div.className = 'countdown-item'
+
+        const textDiv = document.createElement('div')
+        textDiv.className = 'countdown-text'
+
+        const now = new Date()
+        const target = new Date(countdown.date)
+        const diffTime = target - now
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+        let message
+        if (diffDays > 0) {
+          message = `${diffDays} day(s) remaining until ${countdown.label}`
+        } else if (diffDays === 0) {
+          message = `Today is ${countdown.label}!`
+        } else {
+          message = `${countdown.label} has passed.`
+        }
+        textDiv.textContent = message
+
+        const removeBtn = document.createElement('button')
+        removeBtn.textContent = 'X'
+        removeBtn.onclick = () => {
+          countdowns.splice(index, 1)
+          saveCountdowns()
+          renderCountdowns()
+        }
+
+        div.appendChild(textDiv)
+        div.appendChild(removeBtn)
+
+        return div
+      }
+
+      function renderCountdowns() {
+        countdownList.innerHTML = ''
+        countdowns.forEach((c, index) => {
+          const el = createCountdownElement(c, index)
+          countdownList.appendChild(el)
+        })
+      }
+
+      addButton.addEventListener('click', () => {
+        const date = dateInput.value
+        const label = labelInput.value.trim()
+        if (date && label) {
+          countdowns.push({ date, label })
+          saveCountdowns()
+          renderCountdowns()
+          dateInput.value = ''
+          labelInput.value = ''
+        }
+      })
+
+      // Update countdown messages periodically
+      setInterval(renderCountdowns, 60 * 60 * 1000)
+
+      // Initialize
+      loadCountdowns()
+      renderCountdowns()
+    </script>
+  </body>
+</html>
