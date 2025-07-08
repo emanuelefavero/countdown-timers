@@ -14,6 +14,10 @@ This is a simple Vanilla JavaScript countdown timer that can be used to count do
 - Countdown to a specific date and time
 - Add/Remove multiple timers
 
+## License
+
+- [MIT](LICENSE.md)
+
 &nbsp;
 
 ---
